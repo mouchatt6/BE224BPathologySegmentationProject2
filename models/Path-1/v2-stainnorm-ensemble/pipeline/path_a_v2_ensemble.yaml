@@ -1,0 +1,56 @@
+# =============================================================================
+# Path-1 v2 (ensemble) — stain-normalized features + LATE-FUSION of per-backbone heads.
+# Same stain-robustness layer as path_a_v2.yaml, but instead of one head on the 2304-dim
+# concatenation, train a head per backbone and AUROC-weight-average their probabilities
+# (late fusion). The v1 ablation found per-backbone OOF correlation ~0.83 (< 0.97 skip
+# threshold) and late fusion > concatenation, so the diversity is real.
+# Trained by scripts/train_late_fusion.py; consumed by scripts/make_submission.py.
+# =============================================================================
+
+experiment_name: path_a_v2_ensemble
+seed: 42
+deterministic: false
+
+data:
+  train_csv: data/train.csv
+  dummy_csv: data/dummyTest.csv
+  data_root: data
+  n_splits: 5
+
+features:
+  backbones: [resnet18, resnet34, efficientnet_b0]
+  feature_dim: 2304
+  batch_size: 64
+  num_workers: 8
+  tta: rot6
+  stain_norm: true
+  cache_dir: outputs/features_v2     # reuse the stain-normalized feature cache
+
+head:
+  hidden: 256
+  p_drop1: 0.15
+  p_drop2: 0.25
+
+train:
+  lr: 0.002
+  weight_decay: 0.001
+  batch_size: 256
+  max_epochs: 100
+  early_stop_patience: 15
+  label_smoothing: 0.05
+  monitor: auroc
+
+postprocess:
+  optimize_threshold: true
+  calibrate: false
+
+outputs:
+  oof_path: outputs/oof_preds/path_a_v2_lf.npz
+  checkpoint_dir: outputs/checkpoints
+  submission_dir: submissions
+
+submission:
+  name: Path-1-stainnorm-ens
+  version: v2
+
+report_alphas: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
