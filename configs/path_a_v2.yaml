@@ -1,0 +1,66 @@
+# =============================================================================
+# Path-1 v2 — Frozen-feature MLP head model + stain-robustness layer.
+# Targets the ~9-point v1 OOF->LB gap (stain/scanner shift) with:
+#   (1) Macenko stain normalization of every patch (canonical H&E appearance),
+#   (2) 6-way rotational TTA at feature extraction (was 4-way flip),
+#   (3) label smoothing 0.05 (calibration / threshold transfer),
+#   (4) alpha-sensitivity report at 0.1 increments.
+# Architecture, CV, optimizer, head are UNCHANGED from v1 so the stain layer is the
+# isolated variable. v1 (configs/path_a.yaml) is untouched and remains the fallback.
+# =============================================================================
+
+experiment_name: path_a_v2_stainnorm
+seed: 42
+deterministic: false
+
+# ---- Data ----
+data:
+  train_csv: data/train.csv
+  dummy_csv: data/dummyTest.csv
+  data_root: data
+  n_splits: 5
+
+# ---- Feature extraction (frozen backbones) ----
+features:
+  backbones: [resnet18, resnet34, efficientnet_b0]
+  feature_dim: 2304
+  batch_size: 64
+  num_workers: 8
+  tta: rot6                   # 6-way rotational TTA (orig + hflip + vflip + rot90/180/270)
+  stain_norm: true            # Macenko stain normalization per patch (src/data/stain.py)
+  cache_dir: outputs/features_v2   # separate cache; v1 features untouched
+
+# ---- MLP head architecture (unchanged from v1) ----
+head:
+  hidden: 256
+  p_drop1: 0.15
+  p_drop2: 0.25
+
+# ---- MLP training ----
+train:
+  lr: 0.002
+  weight_decay: 0.001
+  batch_size: 256
+  max_epochs: 100
+  early_stop_patience: 15
+  label_smoothing: 0.05       # v2 change: soften targets for calibration / tau transfer
+  monitor: auroc
+
+# ---- Threshold + calibration ----
+postprocess:
+  optimize_threshold: true
+  calibrate: false
+
+# ---- Output locations ----
+outputs:
+  oof_path: outputs/oof_preds/path_a_v2.npz
+  checkpoint_dir: outputs/checkpoints
+  submission_dir: submissions
+
+# ---- Submission cataloging ----
+submission:
+  name: Path-1-stainnorm
+  version: v2
+
+# Finer alpha grid for the sensitivity report (true competition alpha is unknown).
+report_alphas: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]

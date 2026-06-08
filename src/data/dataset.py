@@ -44,6 +44,7 @@ class PatchDataset(Dataset):
         transform: A.Compose,
         data_root: str | Path | None = None,
         return_path: bool = False,
+        stain_normalizer: object | None = None,
     ) -> None:
         """Initialize the dataset.
 
@@ -57,6 +58,11 @@ class PatchDataset(Dataset):
                 ``<repo>/data`` (which symlinks to the external image folders).
             return_path: If True, __getitem__ also returns the original img_path string
                 (needed for the test set to keep submission rows aligned).
+            stain_normalizer: Optional object with a ``normalize(uint8_hwc) -> uint8_hwc``
+                method (e.g. ``src.data.stain.MacenkoNormalizer``), applied to the raw
+                RGB patch before the transform. None (default) reproduces v1 behavior. The
+                object must be picklable so it survives being sent to spawn workers — the
+                NumPy Macenko normalizer is (it holds only arrays/floats).
         """
         self.img_paths = list(img_paths)
         # Store labels as float32 — BCEWithLogitsLoss expects float targets.
@@ -68,6 +74,7 @@ class PatchDataset(Dataset):
         self.transform = transform
         self.data_root = Path(data_root) if data_root else (REPO_ROOT / "data")
         self.return_path = return_path
+        self.stain_normalizer = stain_normalizer
 
     def __len__(self) -> int:
         """Number of patches in the dataset."""
@@ -92,6 +99,12 @@ class PatchDataset(Dataset):
         # array — exactly what Albumentations expects, with no BGR->RGB swap needed.
         with Image.open(full_path) as im:
             img = np.asarray(im.convert("RGB"))
+
+        # Optional stain normalization on the raw uint8 RGB patch (before normalization),
+        # to map every patch onto a canonical H&E appearance and reduce train/test color
+        # shift. No-op for v1 (stain_normalizer is None).
+        if self.stain_normalizer is not None:
+            img = self.stain_normalizer.normalize(img)
 
         # Albumentations returns the transformed image under the "image" key.
         img = self.transform(image=img)["image"]
