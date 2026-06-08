@@ -49,8 +49,13 @@ postprocess:
 # ---- Output locations ----
 outputs:
   oof_path: outputs/oof_preds/path_a.npz
-  submission_path: outputs/submissions/path_a.csv
   checkpoint_dir: outputs/checkpoints
+  submission_dir: submissions          # top-level, gitignored — CSVs never pushed to GitHub
+
+# ---- Submission cataloging (filename = "{name}_{version}.csv") ----
+submission:
+  name: Path-1-baseline                # model identifier; submissions cataloged by this
+  version: v1                          # iteration tag; bump (v2, v3, ...) on each resubmission
 
 # Alpha values for the local sensitivity report (the true competition alpha is unknown).
 report_alphas: [0.3, 0.5, 0.7]

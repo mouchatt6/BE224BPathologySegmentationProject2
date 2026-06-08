@@ -64,8 +64,14 @@ def main() -> None:
     validate_submission(sub_df, dummy_df)
     logger.info("validate_submission() passed.")
 
-    out_path = resolve_path(cfg["outputs"]["submission_path"])
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    # Catalog the submission by model name + iteration, e.g. "Path-1-baseline_v1.csv",
+    # in the gitignored top-level submissions/ folder (CSVs are never pushed to GitHub).
+    sub_dir = resolve_path(cfg["outputs"]["submission_dir"])
+    sub_dir.mkdir(parents=True, exist_ok=True)
+    out_path = sub_dir / f"{cfg['submission']['name']}_{cfg['submission']['version']}.csv"
+    if out_path.exists():
+        logger.warning(f"Overwriting existing submission {out_path.name} "
+                       f"(bump submission.version in the config to keep both).")
     # index=False -> CSV has exactly [img_path, label, probabilities], matching dummyTest.csv.
     sub_df.to_csv(out_path, index=False)
     logger.info(f"Wrote submission to {out_path}")

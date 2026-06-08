@@ -43,7 +43,8 @@ scripts/
   make_submission.py    # build + validate submission.csv
 configs/
   path_a.yaml           # all hyperparameters for Path A
-outputs/                # features, checkpoints, OOF preds, submissions, logs (gitignored)
+outputs/                # features, checkpoints, OOF preds, logs (gitignored)
+submissions/            # submission CSVs, cataloged as {name}_{version}.csv (gitignored)
 data/                   # symlinks to the dataset (gitignored — never committed)
 ```
 
@@ -69,6 +70,7 @@ python scripts/train_path_a.py     --config configs/path_a.yaml   # 5-fold CV + 
 python scripts/make_submission.py  --config configs/path_a.yaml   # write + validate submission
 ```
 
-Outputs land in `outputs/`: OOF predictions and metrics (`outputs/oof_preds/`),
-per-fold checkpoints (`outputs/checkpoints/`), and the final
-`outputs/submissions/path_a.csv`.
+Outputs land in `outputs/`: OOF predictions and metrics (`outputs/oof_preds/`) and
+per-fold checkpoints (`outputs/checkpoints/`). The validated submission is written to
+`submissions/{name}_{version}.csv` (e.g. `submissions/Path-1-baseline_v1.csv`), cataloged
+by model and iteration — bump `submission.version` in the config for each resubmission.
