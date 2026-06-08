@@ -1,5 +1,12 @@
+# ---- Submission CSVs: cataloged locally by model + iteration, never pushed ----
+# Leading slash anchors to repo root so only the top-level folder matches.
+/submissions/
+
 # ---- Data (never commit raw images or labels) ----
-data/
+# Leading slash is REQUIRED: a bare "data/" also matches src/data/ and would
+# silently exclude the data-pipeline package. "/data/" matches only the top-level
+# symlink folder.
+/data/
 *.png
 *.jpg
 *.jpeg
