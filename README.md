@@ -44,7 +44,7 @@ scripts/
 configs/
   path_a.yaml           # all hyperparameters for Path A
 outputs/                # features, checkpoints, OOF preds, logs (gitignored)
-submissions/            # submission CSVs, cataloged as {name}_{version}.csv (gitignored)
+submissions/            # {name}_{version}.csv + submission_logs/{name}_{version}.md (gitignored)
 data/                   # symlinks to the dataset (gitignored — never committed)
 ```
 
@@ -74,3 +74,5 @@ Outputs land in `outputs/`: OOF predictions and metrics (`outputs/oof_preds/`) a
 per-fold checkpoints (`outputs/checkpoints/`). The validated submission is written to
 `submissions/{name}_{version}.csv` (e.g. `submissions/Path-1-baseline_v1.csv`), cataloged
 by model and iteration — bump `submission.version` in the config for each resubmission.
+Each run also writes `submissions/submission_logs/{name}_{version}.md` cataloging the OOF
+AUROC, best F1, composite per α, and a summary of what was executed (for run-to-run diffs).

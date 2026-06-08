@@ -13,12 +13,15 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 
+from src.eval.run_log import write_run_log
 from src.eval.validate import validate_submission
-from src.utils.config import load_config, resolve_path
+from src.utils.config import REPO_ROOT, load_config, resolve_path
 from src.utils.logging_utils import get_logger
 
 
@@ -76,6 +79,24 @@ def main() -> None:
     sub_df.to_csv(out_path, index=False)
     logger.info(f"Wrote submission to {out_path}")
     logger.info(f"Positive-rate in submission: {labels.mean():.3f} ({int(labels.sum())}/{len(labels)})")
+
+    # --- Write a per-run markdown log cataloging metrics + what was executed. ---
+    # Metrics come from the training sidecar JSON (written next to the OOF .npz).
+    sidecar_path = resolve_path(cfg["outputs"]["oof_path"]).with_suffix(".json")
+    metrics = json.loads(sidecar_path.read_text()) if sidecar_path.exists() else {}
+    submission_stats = {
+        "filename": str(out_path.relative_to(REPO_ROOT)),
+        "n_rows": len(sub_df),
+        "positive_rate": float(labels.mean()),
+    }
+    log_path = write_run_log(
+        cfg,
+        metrics,
+        submission_stats,
+        out_dir=sub_dir / "submission_logs",
+        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    )
+    logger.info(f"Wrote run log to {log_path}")
 
 
 if __name__ == "__main__":
