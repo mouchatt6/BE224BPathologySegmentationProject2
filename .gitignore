@@ -1,0 +1,39 @@
+# ---- Data (never commit raw images or labels) ----
+data/
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+
+# ---- Python virtual environment ----
+.venv/
+venv/
+env/
+
+# ---- Local-only planning / context docs (kept out of the public repo) ----
+prostate_pathology_action_plan.md
+*orientation*.md
+
+# ---- Caches / build ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+.DS_Store
+
+# ---- Outputs: keep folder structure (.gitkeep) but ignore heavy artifacts ----
+outputs/checkpoints/*
+outputs/features/*
+outputs/oof_preds/*
+outputs/submissions/*
+outputs/logs/*
+outputs/figures/*
+outputs/folds.csv
+!outputs/**/.gitkeep
+
+# Allow YAML configs and code through
+!configs/
+!src/
+!scripts/
