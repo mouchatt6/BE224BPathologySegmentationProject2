@@ -25,12 +25,12 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from scipy.special import expit  # numerically stable sigmoid (no exp overflow)
 from torch.utils.data import DataLoader, TensorDataset
 
 from src.data.features import load_concat_features
@@ -69,7 +69,7 @@ def _predict(model: nn.Module, X: torch.Tensor, device: torch.device) -> tuple[n
     """
     model.eval()
     logits = model(X.to(device)).cpu().numpy()
-    probs = 1.0 / (1.0 + np.exp(-logits))  # sigmoid
+    probs = expit(logits)  # numerically stable sigmoid (handles large |logits|)
     return logits, probs
 
 
@@ -261,7 +261,7 @@ def main() -> None:
     # --- Report OOF metrics at tau across several alphas (sensitivity analysis). ---
     oof_labels = (oof_probs >= tau).astype(int)
     report = report_across_alphas(y_train, oof_labels, oof_probs, cfg["report_alphas"])
-    composite_50, auroc, f1 = compute_score(y_train, oof_labels, oof_probs, alpha=0.5)
+    _, auroc, f1 = compute_score(y_train, oof_labels, oof_probs, alpha=0.5)
 
     logger.info("=" * 64)
     logger.info(f"OOF AUROC          : {auroc:.4f}")

@@ -15,6 +15,7 @@ from __future__ import annotations
 import numpy as np
 import torch
 import torch.nn.functional as F
+from scipy.special import expit
 
 
 def fit_temperature(
@@ -60,4 +61,4 @@ def apply_temperature(logits: np.ndarray, temperature: float) -> np.ndarray:
     Returns:
         Calibrated probabilities in [0, 1], shape (N,).
     """
-    return 1.0 / (1.0 + np.exp(-logits / temperature))
+    return expit(logits / temperature)  # numerically stable sigmoid
