@@ -1,0 +1,61 @@
+# =============================================================================
+# Path A — Frozen-feature MLP head model (the safety-net baseline, target LB >= 0.84)
+# ResNet-18 + ResNet-34 + EfficientNet-B0 frozen feature extraction
+# -> concatenate (2304-dim) -> MLP head -> 5-fold CV.
+# Every hyperparameter the scripts use lives here; nothing is hardcoded in code.
+# =============================================================================
+
+experiment_name: path_a_frozen_mlp
+seed: 42
+deterministic: false          # set true for the final reproducible submission run
+
+# ---- Data ----
+data:
+  train_csv: data/train.csv
+  dummy_csv: data/dummyTest.csv
+  data_root: data             # img_path strings ("train/0000.png") resolve against this
+  n_splits: 5                 # 5-fold stratified CV
+
+# ---- Feature extraction (frozen backbones) ----
+features:
+  backbones: [resnet18, resnet34, efficientnet_b0]   # concatenated -> 2304-dim
+  feature_dim: 2304
+  batch_size: 64              # images per forward pass during extraction
+  num_workers: 8
+  tta: flip4                  # 4-way flip TTA (original + hflip + vflip + hvflip), averaged
+  cache_dir: outputs/features # cached {backbone}_{split}.npy + alignment index
+
+# ---- MLP head architecture (Appendix A) ----
+head:
+  hidden: 256
+  p_drop1: 0.15
+  p_drop2: 0.25
+
+# ---- MLP training ----
+train:
+  lr: 0.002                   # AdamW learning rate
+  weight_decay: 0.001
+  batch_size: 256             # features are tiny -> large batch
+  max_epochs: 100
+  early_stop_patience: 15     # stop if val AUROC hasn't improved in N epochs
+  label_smoothing: 0.0        # 0.0 = exact replication; 0.05 optionally improves calibration
+  monitor: auroc              # checkpoint selection metric on the validation fold
+
+# ---- Threshold + calibration (composite-score optimization, §6) ----
+postprocess:
+  optimize_threshold: true    # sweep tau on OOF preds to maximize F1
+  calibrate: false            # temperature scaling (optional; on the cut list)
+
+# ---- Output locations ----
+outputs:
+  oof_path: outputs/oof_preds/path_a.npz
+  checkpoint_dir: outputs/checkpoints
+  submission_dir: submissions          # top-level, gitignored — CSVs never pushed to GitHub
+
+# ---- Submission cataloging (filename = "{name}_{version}.csv") ----
+submission:
+  name: Path-1-baseline                # model identifier; submissions cataloged by this
+  version: v1                          # iteration tag; bump (v2, v3, ...) on each resubmission
+
+# Alpha values for the local sensitivity report (the true competition alpha is unknown).
+report_alphas: [0.3, 0.5, 0.7]
