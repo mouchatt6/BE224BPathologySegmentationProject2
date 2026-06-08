@@ -16,19 +16,29 @@ from pathlib import Path
 from typing import Any
 
 
-def _summary_lines(cfg: dict[str, Any]) -> list[str]:
+def _summary_lines(cfg: dict[str, Any], fusion_weights: dict | None = None) -> list[str]:
     """Build the bullet list describing what the run executed, from the config.
 
     Args:
         cfg: The parsed experiment config.
+        fusion_weights: If present, this run used late fusion (a head per backbone,
+            probability-averaged with these weights) rather than feature concatenation.
 
     Returns:
         A list of markdown bullet strings summarizing the pipeline for this run.
     """
     feat, head, train, post = cfg["features"], cfg["head"], cfg["train"], cfg["postprocess"]
+    stain = "on (Macenko)" if feat.get("stain_norm", False) else "off"
+    if fusion_weights:
+        fusion = ", ".join(f"{k} {v:.2f}" for k, v in fusion_weights.items())
+        backbone_line = (f"- **Backbones:** {' + '.join(feat['backbones'])} (frozen, ImageNet) "
+                         f"→ per-backbone heads, **late fusion** (AUROC-weighted: {fusion})")
+    else:
+        backbone_line = (f"- **Backbones:** {' + '.join(feat['backbones'])} "
+                         f"(frozen, ImageNet) → {feat['feature_dim']}-dim concatenation")
     return [
-        f"- **Backbones:** {' + '.join(feat['backbones'])} "
-        f"(frozen, ImageNet) → {feat['feature_dim']}-dim concat",
+        backbone_line,
+        f"- **Stain normalization:** {stain}",
         f"- **Feature-extraction TTA:** {feat['tta']}",
         f"- **Cross-validation:** {cfg['data']['n_splits']}-fold stratified",
         f"- **Head:** BN → Dropout({head['p_drop1']}) → Linear({feat['feature_dim']}→{head['hidden']}) "
@@ -82,8 +92,9 @@ def write_run_log(
              f"**Config hash:** `{metrics.get('config_hash', 'n/a')}`")
     L.append("")
 
+    fusion_weights = metrics.get("fusion_weights")
     L.append("## What was executed")
-    L.extend(_summary_lines(cfg))
+    L.extend(_summary_lines(cfg, fusion_weights))
     L.append("")
 
     L.append("## Results (out-of-fold)")
@@ -99,7 +110,8 @@ def write_run_log(
     if fold_aurocs:
         per_fold = ", ".join(f"{a:.4f}" for a in fold_aurocs)
         mean = sum(fold_aurocs) / len(fold_aurocs)
-        L.append(f"| Per-fold AUROC | {per_fold} (mean {mean:.4f}) |")
+        label = "Per-backbone OOF AUROC" if fusion_weights else "Per-fold AUROC"
+        L.append(f"| {label} | {per_fold} (mean {mean:.4f}) |")
     L.append("")
 
     # AUROC and F1 are alpha-independent; only the composite varies with alpha.
