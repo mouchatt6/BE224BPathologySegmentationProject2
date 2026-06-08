@@ -30,9 +30,14 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 
+# ---- Cached arrays: never commit binary feature/prediction dumps ----
+*.npy
+*.npz
+
 # ---- Outputs: keep folder structure (.gitkeep) but ignore heavy artifacts ----
 outputs/checkpoints/*
-outputs/features/*
+# features/, features_v2/, and any future feature cache dir
+outputs/features*/
 outputs/oof_preds/*
 outputs/submissions/*
 outputs/logs/*
