@@ -29,13 +29,18 @@ def _summary_lines(cfg: dict[str, Any], fusion_weights: dict | None = None) -> l
     """
     feat, head, train, post = cfg["features"], cfg["head"], cfg["train"], cfg["postprocess"]
     stain = "on (Macenko)" if feat.get("stain_norm", False) else "off"
+    # Pretraining source depends on the backbone family (Phikon is TCGA-pathology, not ImageNet).
+    pretrain = "TCGA-pathology" if feat.get("backend") == "phikon" else "ImageNet"
     if fusion_weights:
         fusion = ", ".join(f"{k} {v:.2f}" for k, v in fusion_weights.items())
-        backbone_line = (f"- **Backbones:** {' + '.join(feat['backbones'])} (frozen, ImageNet) "
+        backbone_line = (f"- **Backbones:** {' + '.join(feat['backbones'])} (frozen, {pretrain}) "
                          f"→ per-backbone heads, **late fusion** (AUROC-weighted: {fusion})")
+    elif len(feat["backbones"]) == 1:
+        backbone_line = (f"- **Backbone:** {feat['backbones'][0]} "
+                         f"(frozen, {pretrain}) → {feat['feature_dim']}-dim features")
     else:
         backbone_line = (f"- **Backbones:** {' + '.join(feat['backbones'])} "
-                         f"(frozen, ImageNet) → {feat['feature_dim']}-dim concatenation")
+                         f"(frozen, {pretrain}) → {feat['feature_dim']}-dim concatenation")
     return [
         backbone_line,
         f"- **Stain normalization:** {stain}",
