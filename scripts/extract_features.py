@@ -137,8 +137,15 @@ def main() -> None:
     device = get_device()
     logger.info(f"Device: {device_name(device)}")
 
-    # Build and move the three frozen extractors onto the device.
-    extractors = build_path_a_extractors(pretrained=True)
+    # Build the frozen extractor(s) for the configured backend and move onto the device.
+    #   timm_cnn (default, Path A): ResNet-18 + ResNet-34 + EfficientNet-B0
+    #   phikon   (Path B):          frozen Phikon ViT-Base (CLS token, 768-dim)
+    backend = cfg["features"].get("backend", "timm_cnn")
+    if backend == "phikon":
+        from src.models.phikon import build_phikon_extractors  # lazy: avoids transformers for Path A
+        extractors = build_phikon_extractors(pretrained=True)
+    else:
+        extractors = build_path_a_extractors(pretrained=True)
     for name, ex in extractors.items():
         ex.to(device).eval()
         logger.info(f"Loaded frozen backbone: {name} (feat_dim={ex.feature_dim})")
