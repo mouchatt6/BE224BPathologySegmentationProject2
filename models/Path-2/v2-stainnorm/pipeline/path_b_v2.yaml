@@ -1,0 +1,58 @@
+# =============================================================================
+# Path B v2 — frozen Phikon + improvement layer.
+# Adds to the Path B base (configs/path_b.yaml): Macenko stain normalization,
+# 6-way rotational TTA, and label smoothing 0.05. NOTE: stain normalization is a
+# hypothesis to TEST for Phikon, not a given — Phikon was pretrained on raw TCGA H&E
+# (with natural stain variation), so normalized inputs are mildly out-of-distribution
+# for the frozen model. We validate with the stress eval (base vs this) before shipping.
+# Late fusion is N/A (single backbone). Fine-tuning is still deferred.
+# =============================================================================
+
+experiment_name: path_b_v2_stainnorm
+seed: 42
+deterministic: false
+
+data:
+  train_csv: data/train.csv
+  dummy_csv: data/dummyTest.csv
+  data_root: data
+  n_splits: 5
+
+features:
+  backend: phikon
+  backbones: [phikon]
+  feature_dim: 768
+  batch_size: 64
+  num_workers: 8
+  tta: rot6                   # 6-way rotational TTA (was 4-way flip in the base)
+  stain_norm: true            # Macenko — under test for Phikon (see stress eval)
+  cache_dir: outputs/features_phikon_v2
+
+head:
+  hidden: 256
+  p_drop1: 0.15
+  p_drop2: 0.25
+
+train:
+  lr: 0.002
+  weight_decay: 0.001
+  batch_size: 256
+  max_epochs: 100
+  early_stop_patience: 15
+  label_smoothing: 0.05       # improvement-layer addition
+  monitor: auroc
+
+postprocess:
+  optimize_threshold: true
+  calibrate: false
+
+outputs:
+  oof_path: outputs/oof_preds/path_b_v2.npz
+  checkpoint_dir: outputs/checkpoints
+  submission_dir: submissions
+
+submission:
+  name: Path-2-phikon-stain
+  version: v2
+
+report_alphas: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]

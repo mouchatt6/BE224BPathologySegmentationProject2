@@ -14,7 +14,8 @@ are in the gitignored `submissions/submission_logs/`.
 
 | Version | Summary | OOF AUROC | OOF composite (α=0.5) | Public LB |
 |---|---|---|---|---|
-| [v1-base](v1-base/) | Frozen Phikon CLS features (768-d) + MLP, 4-way flip TTA | **0.9929** | **0.9787** | _pending upload_ |
+| [v1-base](v1-base/) | Frozen Phikon CLS features (768-d) + MLP, 4-way flip TTA | **0.9929** | **0.9787** | **0.882** |
+| [v2-stainnorm](v2-stainnorm/) | + Macenko stain norm, rot6 TTA, label smoothing 0.05 | 0.9890 | ~0.974 | _pending upload_ |
 
 ## Path A vs Path B (out-of-fold)
 
@@ -22,10 +23,12 @@ are in the gitignored `submissions/submission_logs/`.
 |---|---|---|---|
 | Path-1 v1 (CNN trio) | 0.9393 | 0.9055 | 0.811 |
 | Path-1 v2 (stain + late fusion) | 0.9470 | 0.9143 | 0.827 |
-| **Path-2 v1 (frozen Phikon)** | **0.9929** | **0.9787** | _pending_ |
+| **Path-2 v1 (frozen Phikon)** | **0.9929** | **0.9787** | **0.882** |
+| Path-2 v2 (Phikon + stain norm) | 0.9890 | ~0.974 | _pending_ |
 
-**Caveat:** OOF is same-distribution; the leaderboard is the real test (Path A showed a
-~9–13 pt OOF→LB gap from stain shift). Phikon's pathology pretraining *may* shrink that
-gap (it is plausibly more stain/scanner-robust than ImageNet CNNs), but that is unconfirmed
-until the LB comes back. The improvement layer (stain norm, late fusion, fine-tuning) is
-intentionally **not** applied yet — this is the clean base.
+**Phikon's ~10-pt OOF→LB gap (0.979 → 0.882) confirms the test set is genuinely shifted.**
+The improvement layer matters: for Phikon, Macenko stain norm slightly lowers clean OOF
+(raw-H&E inputs are out-of-distribution for it) but makes it **5.8× more robust** to stain
+shift in the stress eval — so v2 bets that robustness wins on the shifted LB, mirroring
+Path A v1→v2 (0.811→0.827). See [v2-stainnorm/](v2-stainnorm/). v1-base (0.882) is the
+Path B fallback. Fine-tuning is the next deferred step.
