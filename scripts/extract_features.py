@@ -157,7 +157,9 @@ def main() -> None:
     # Config-driven TTA mode and optional Macenko stain normalization.
     # v1 defaults preserved: 4-way flip TTA, no stain normalization.
     tta_mode = cfg["features"].get("tta", "flip4")
-    tta_fn = {"flip4": flip_variants, "rot6": rot_variants}[tta_mode]
+    # "none" = single view (no TTA), used for very heavy backbones where N-way TTA would
+    # multiply an already-slow extraction (e.g. H-optimus ViT-Giant on MPS).
+    tta_fn = {"flip4": flip_variants, "rot6": rot_variants, "none": (lambda b: [b])}[tta_mode]
     stain_normalizer = MacenkoNormalizer() if cfg["features"].get("stain_norm", False) else None
     logger.info(f"TTA mode: {tta_mode} | stain normalization: {bool(stain_normalizer)}")
 

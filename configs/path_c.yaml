@@ -23,7 +23,9 @@ features:
   feature_dim: 1536
   batch_size: 16              # ViT-Giant/1.1B — small batch to fit MPS memory
   num_workers: 8
-  tta: flip4                  # 4-way flip TTA (matches Phikon base protocol)
+  tta: none                   # single view: ViT-Giant is slow on MPS (~5.9 img/s); 4-way
+                              # TTA would be ~110 min. OOF is already saturated so TTA's
+                              # marginal gain is tiny. Single view keeps extraction ~27 min.
   stain_norm: false           # base model
   cache_dir: outputs/features_hoptimus
   # H-optimus-0 required normalization (NOT ImageNet):
