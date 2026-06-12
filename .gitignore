@@ -50,3 +50,7 @@ outputs/folds.csv
 !src/
 !scripts/
 
+
+# ---- Final report (kept local; contains leaderboard scores) ----
+report/
+outputs/results_summary.json
