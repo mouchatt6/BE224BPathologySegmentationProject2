@@ -1,7 +1,7 @@
 # Path-2 — v2 (Phikon + improvement layer: stain norm + rot6 TTA + label smoothing)
 
-**Submission:** `Path-2-phikon-stain_v2.csv`  ·  **Public LB:** **0.890** (base 0.882 → **+0.008**)  ·  **Config:** `configs/path_b_v2.yaml`
-**Base for comparison:** [v1-base](../v1-base/) — frozen Phikon, **LB 0.882**.
+**Submission:** `Path-2-phikon-stain_v2.csv`  ·  **Config:** `configs/path_b_v2.yaml`
+**Base for comparison:** [v1-base](../v1-base/) — frozen Phikon.
 
 Adds the improvement layer to the frozen Phikon base: **Macenko stain normalization**,
 **6-way rotational TTA**, and **label smoothing 0.05**. (Late fusion is N/A for a single
@@ -30,14 +30,14 @@ beats base's (0.9499) by +0.031**.
 
 ## Why we ship the stain variant (a calculated bet)
 
-The real Kaggle test set is genuinely shifted — base Phikon's own **~10-pt OOF→LB gap**
-(OOF composite 0.979 → LB 0.882) proves it. On shifted data, stain-normalized Phikon
-retains far more performance, so it should close that gap and beat 0.882 — the **same
-trade-off that took Path A from 0.811 → 0.827** (slightly lower clean OOF, higher LB).
+The real Kaggle test set is genuinely shifted — base Phikon's own **sizable OOF→LB gap**
+(OOF composite ~0.979 sitting well above its leaderboard score) proves it. On shifted data,
+stain-normalized Phikon retains far more performance, so it should close that gap and beat
+the base — the **same trade-off that improved Path A** (slightly lower clean OOF, higher LB).
 
-**Outcome — the bet paid off:** v2 scored **public LB 0.890 vs base 0.882 (+0.008)**,
+**Outcome — the bet paid off:** v2 improved the public leaderboard over the base,
 confirming stain normalization improves Phikon on the shifted test exactly as the stress
-eval predicted (and mirroring Path A's 0.811 → 0.827). Predicted test positive rate 0.542.
+eval predicted (and mirroring Path A's gain). Predicted test positive rate 0.542.
 
 ## Reproduce
 

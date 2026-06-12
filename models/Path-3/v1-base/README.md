@@ -1,6 +1,6 @@
 # Path-3 — v1 (frozen H-optimus-0 base)
 
-**Submission:** `Path-3-hoptimus-base_v1.csv`  ·  **Public LB:** **0.895** (best so far)  ·  **Config:** `configs/path_c.yaml`
+**Submission:** `Path-3-hoptimus-base_v1.csv`  ·  **Config:** `configs/path_c.yaml`
 
 Frozen **H-optimus-0** (`bioptimus/H-optimus-0`, ViT-Giant/14, **1.1B params**, SSL on
 >500k WSIs) as a feature extractor → the same MLP head as the other paths. Clean base:
@@ -32,11 +32,11 @@ ran `hf auth login`.
 | Predicted test positive rate | 0.505 |
 
 ### vs the other paths
-| Model | OOF AUROC | OOF F1 | Public LB |
-|---|---|---|---|
-| Path-1 v2 (CNN + stain + fusion) | 0.9470 | 0.8815 | 0.827 |
-| Path-2 v1 (Phikon) | 0.9929 | 0.9645 | 0.882 |
-| **Path-3 v1 (H-optimus)** | 0.9897 | 0.9541 | **0.895** |
+| Model | OOF AUROC | OOF F1 |
+|---|---|---|
+| Path-1 v2 (CNN + stain + fusion) | 0.9470 | 0.8815 |
+| Path-2 v1 (Phikon) | 0.9929 | 0.9645 |
+| **Path-3 v1 (H-optimus)** | 0.9897 | 0.9541 |
 
 ## Caveats
 - **OOF is saturated** (~0.99) and **H-optimus used no TTA** vs Phikon's flip4, so OOF

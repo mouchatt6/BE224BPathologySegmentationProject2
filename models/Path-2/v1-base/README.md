@@ -1,6 +1,6 @@
 # Path-2 — v1 (frozen Phikon base)
 
-**Submission:** `Path-2-phikon-base_v1.csv`  ·  **Public LB:** _pending upload_  ·  **Config:** `configs/path_b.yaml`
+**Submission:** `Path-2-phikon-base_v1.csv`  ·  **Config:** `configs/path_b.yaml`
 
 The base Path B model: **frozen Phikon** (`owkin/phikon`, ViT-Base/16, iBOT pretrained on
 ~40M TCGA histopathology tiles) as a feature extractor → the same MLP head as Path A. A
@@ -33,20 +33,21 @@ training ~30 s. **No Kaggle/Colab needed** for the frozen base.
 | Predicted test positive rate | 0.564 |
 
 ### vs Path A
-| Model | OOF AUROC | OOF composite @0.5 | Public LB |
-|---|---|---|---|
-| Path-1 v1 (CNN trio) | 0.9393 | 0.9055 | 0.811 |
-| Path-1 v2 (stain + late fusion) | 0.9470 | 0.9143 | 0.827 |
-| **Path-2 v1 (frozen Phikon)** | **0.9929** | **0.9787** | _pending_ |
+| Model | OOF AUROC | OOF composite @0.5 |
+|---|---|---|
+| Path-1 v1 (CNN trio) | 0.9393 | 0.9055 |
+| Path-1 v2 (stain + late fusion) | 0.9470 | 0.9143 |
+| **Path-2 v1 (frozen Phikon)** | **0.9929** | **0.9787** |
 
 The pathology-pretrained transformer outranks the ImageNet CNN trio by **+0.046 OOF
 AUROC** — a large gap, consistent with domain-specific foundation models encoding tissue
 morphology the CNNs must approximate.
 
 ## Caveats / watch-list
-- **OOF is same-distribution; the LB is the real test.** Path A had a ~9–13 pt OOF→LB gap
+- **OOF is same-distribution; the LB is the real test.** Path A had a sizable OOF→LB gap
   (stain/scanner shift). Phikon's domain pretraining may shrink it (more stain-robust), but
-  that is unconfirmed until upload. Even with Path A's gap, 0.979 OOF should clear 0.827.
+  that is unconfirmed until upload. Even with Path A's gap, the 0.979 OOF should comfortably
+  clear the CNN baselines on the leaderboard.
 - Probabilities are very confident (features highly separable) and the predicted positive
   rate (0.564) sits a bit above the balanced train prior — if LB F1 underperforms AUROC,
   the threshold is the first thing to revisit.

@@ -1,6 +1,6 @@
 # Path-1 — v1 (baseline)
 
-**Submission:** `Path-1-baseline_v1.csv`  ·  **Public LB:** **0.811**  ·  **Code state:** git `ccc69f2`
+**Submission:** `Path-1-baseline_v1.csv`  ·  **Code state:** git `ccc69f2`
 
 The first Path A submission: the **Frozen-feature MLP head model**. Three frozen
 ImageNet CNNs produce fixed feature vectors that an MLP head classifies, with 5-fold CV
@@ -30,12 +30,12 @@ and an OOF-optimized decision threshold.
 | Best F1 @ τ\*=0.520 | **0.8716** (stable) |
 | Composite @ α=0.3 / 0.5 / 0.7 | 0.8920 / 0.9055 / 0.9190 |
 | Predicted positive rate (test) | 0.488 (1172/2400) |
-| **Public LB** | **0.811** |
 
-### The headline finding: a ~9-point OOF→LB gap
-OOF composite ~0.905 vs LB 0.811. Because the OOF score is an honest 5-fold holdout,
-this gap is **distribution shift** (stain/scanner/lab variation between train and test),
-not overfitting — which is what motivates the v2 stain-normalization work.
+### The headline finding: a sizable OOF→LB gap
+The OOF composite (~0.905) sits well above the public leaderboard. Because the OOF score is
+an honest 5-fold holdout, this gap is **distribution shift** (stain/scanner/lab variation
+between train and test), not overfitting — which is what motivates the v2
+stain-normalization work.
 
 ## Reproduce
 

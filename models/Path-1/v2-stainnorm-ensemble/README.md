@@ -1,9 +1,10 @@
 # Path-1 — v2 (stain normalization + late-fusion ensemble)
 
-**Submission:** `Path-1-stainnorm-ens_v2.csv`  ·  **Public LB:** _pending upload_  ·  **Configs:** `configs/path_a_v2_ensemble.yaml`
+**Submission:** `Path-1-stainnorm-ens_v2.csv`  ·  **Configs:** `configs/path_a_v2_ensemble.yaml`
 
-v2 attacks the **~9-point OOF→LB gap** that v1 exposed (OOF composite 0.905 → LB 0.811),
-which is the signature of train/test **stain distribution shift**. Four evidence-backed
+v2 attacks the **sizable OOF→LB gap** that v1 exposed (OOF composite ~0.905 sitting well
+above the leaderboard), which is the signature of train/test **stain distribution shift**.
+Four evidence-backed
 changes, all keeping v1's frozen ResNet-18 + ResNet-34 + EfficientNet-B0 backbones:
 
 | Change | Why | Evidence |

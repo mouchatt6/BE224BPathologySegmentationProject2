@@ -12,16 +12,16 @@ min; its non-ImageNet normalization is config-driven (`features.norm_mean/std`).
 
 ## Versions
 
-| Version | Summary | OOF AUROC | OOF F1 | Public LB |
-|---|---|---|---|---|
-| [v1-base](v1-base/) | Frozen H-optimus CLS features (1536-d) + MLP, single-view | 0.9897 | 0.9541 | **0.895 (best)** |
+| Version | Summary | OOF AUROC | OOF F1 |
+|---|---|---|---|
+| [v1-base](v1-base/) | Frozen H-optimus CLS features (1536-d) + MLP, single-view | 0.9897 | 0.9541 |
 
 ## Foundation-model comparison (out-of-fold)
 
-| Model | Backbone | OOF AUROC | OOF F1 | TTA | Public LB |
-|---|---|---|---|---|---|
-| Path-2 v1 (Phikon) | ViT-B, 768-d | 0.9929 | 0.9645 | flip4 | **0.882** |
-| **Path-3 v1 (H-optimus)** | ViT-G/1.1B, 1536-d | 0.9897 | 0.9541 | none | **0.895** |
+| Model | Backbone | OOF AUROC | OOF F1 | TTA |
+|---|---|---|---|---|
+| Path-2 v1 (Phikon) | ViT-B, 768-d | 0.9929 | 0.9645 | flip4 |
+| **Path-3 v1 (H-optimus)** | ViT-G/1.1B, 1536-d | 0.9897 | 0.9541 | none |
 
 **Read this carefully:** on this patch task the OOF is **saturated** (~0.99 for both
 foundation models), so OOF barely separates them — and H-optimus here is mildly

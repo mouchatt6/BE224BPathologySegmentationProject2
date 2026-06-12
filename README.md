@@ -30,26 +30,26 @@ robust to whatever weight the graders use.
 
 ## Results / Leaderboard
 
-Public-leaderboard numbers are authoritative; OOF AUROC is same-distribution 5-fold cross-validation.
+The public leaderboard is authoritative; OOF AUROC is same-distribution 5-fold cross-validation.
 
-| Submission | Backbone | OOF AUROC | Public LB |
-|---|---|---|---|
-| **Path-1 v1** — CNN trio (ResNet-18 + ResNet-34 + EfficientNet-B0, frozen) | ImageNet CNNs | 0.9393 | 0.811 |
-| **Path-1 v2** — + Macenko stain norm + 6-way rot TTA + label smoothing + late fusion | ImageNet CNNs | 0.9470 | 0.827 |
-| **Path-2 v1** — frozen Phikon | ViT-B, TCGA-pretrained | 0.9929 | 0.882 |
-| **Path-2 v2** — Phikon + stain norm | ViT-B | 0.9890 | 0.890 |
-| **Path-3 v1** — frozen H-optimus-0 | ViT-G / 1.1B, histology-SSL | 0.9897 | **0.895 (BEST)** |
-| **Path-3 v2** — H-optimus + stain norm | ViT-G | _in progress_ | _pending_ |
+| Submission | Backbone | OOF AUROC |
+|---|---|---|
+| **Path-1 v1** — CNN trio (ResNet-18 + ResNet-34 + EfficientNet-B0, frozen) | ImageNet CNNs | 0.9393 |
+| **Path-1 v2** — + Macenko stain norm + 6-way rot TTA + label smoothing + late fusion | ImageNet CNNs | 0.9470 |
+| **Path-2 v1** — frozen Phikon | ViT-B, TCGA-pretrained | 0.9929 |
+| **Path-2 v2** — Phikon + stain norm | ViT-B | 0.9890 |
+| **Path-3 v1** — frozen H-optimus-0 | ViT-G / 1.1B, histology-SSL | 0.9897 |
+| **Path-3 v2** — H-optimus + stain norm | ViT-G | _in progress_ |
 
 **Three findings drive the project:**
 
 1. **Pathology foundation models crush ImageNet CNNs.** Swapping the only variable — the
-   frozen backbone — lifts the LB from **0.827 → 0.882+**. Histology-pretrained transformers
+   frozen backbone — lifts the leaderboard substantially. Histology-pretrained transformers
    produce vastly more separable features than CNNs pretrained on natural images.
 2. **Stain normalization consistently lifts the leaderboard** by closing the train→test
-   stain/scanner shift: **CNN +0.016**, **Phikon +0.008** — even though it can slightly
-   *lower* same-distribution OOF (raw-H&E inputs are mildly out-of-distribution for a frozen
-   FM). It bets robustness on the *shifted* test, and that bet keeps winning.
+   stain/scanner shift — even though it can slightly *lower* same-distribution OOF (raw-H&E
+   inputs are mildly out-of-distribution for a frozen FM). It bets robustness on the
+   *shifted* test, and that bet keeps winning.
 3. **OOF is saturated (~0.99) for the foundation models**, so it barely separates them — the
    **leaderboard, not OOF, is the deciding signal.**
 
@@ -122,7 +122,6 @@ configs/
   path_c.yaml  path_c_v2.yaml                            # Path-3 (H-optimus)
 models/
   Path-1/  Path-2/  Path-3/   # per-model index READMEs + versioned snapshots (see below)
-docs/CLOUD_GUIDE.md           # Colab/Kaggle recipes for heavy FMs and fine-tuning
 tests/                        # 17 CPU pytest smoke tests
 outputs/                      # feature caches, checkpoints, OOF preds, logs (gitignored)
 submissions/                  # {name}_{version}.csv + submission_logs/ (gitignored)
@@ -196,9 +195,6 @@ PYTHONPATH=. ./.venv/bin/python -m pytest tests/ -q     # 17 CPU smoke tests
   full version history. Each version sub-folder (`v1-…`, `v2-…`) has its own `README.md`
   documenting what was run and the results, plus a `pipeline/` snapshot of the exact
   scripts and config that produced it.
-- **`docs/CLOUD_GUIDE.md`** — Colab/Kaggle recipes for the GPU-heavy steps: frozen
-  extraction of large FMs (e.g. H-optimus) and end-to-end fine-tuning. Both produce artifacts
-  the local pipeline consumes **unchanged**, so you only run the GPU step in the cloud.
 - **`tests/`** — 17 CPU pytest smoke tests covering the MLP head, TTA, threshold
   optimization, splits, scoring, and submission validation.
 - **`submissions/`** *(gitignored)* — cataloged submission CSVs named
