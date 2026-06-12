@@ -1,0 +1,60 @@
+# =============================================================================
+# Path C (base) — frozen H-optimus-0 foundation model + MLP head.
+# H-optimus-0 (bioptimus/H-optimus-0, ViT-Giant/14, 1.1B params, SSL on >500k WSIs) used
+# as a FROZEN feature extractor: 1536-dim feature -> same MLP head + 5-fold CV. Among the
+# strongest OPEN pathology FMs (vs Phikon-v1's ViT-Base). Clean base: no stain norm / late
+# fusion / fine-tuning. NOTE: uses H-optimus's own normalization (not ImageNet) and a
+# small batch (the model is large).
+# =============================================================================
+
+experiment_name: path_c_hoptimus_base
+seed: 42
+deterministic: false
+
+data:
+  train_csv: data/train.csv
+  dummy_csv: data/dummyTest.csv
+  data_root: data
+  n_splits: 5
+
+features:
+  backend: h_optimus
+  backbones: [h_optimus]
+  feature_dim: 1536
+  batch_size: 16              # ViT-Giant/1.1B — small batch to fit MPS memory
+  num_workers: 8
+  tta: flip4                  # 4-way flip TTA (matches Phikon base protocol)
+  stain_norm: false           # base model
+  cache_dir: outputs/features_hoptimus
+  # H-optimus-0 required normalization (NOT ImageNet):
+  norm_mean: [0.707223, 0.578729, 0.703617]
+  norm_std: [0.211883, 0.230117, 0.177517]
+
+head:
+  hidden: 256
+  p_drop1: 0.15
+  p_drop2: 0.25
+
+train:
+  lr: 0.002
+  weight_decay: 0.001
+  batch_size: 256
+  max_epochs: 100
+  early_stop_patience: 15
+  label_smoothing: 0.0        # base model — clean comparison
+  monitor: auroc
+
+postprocess:
+  optimize_threshold: true
+  calibrate: false
+
+outputs:
+  oof_path: outputs/oof_preds/path_c.npz
+  checkpoint_dir: outputs/checkpoints
+  submission_dir: submissions
+
+submission:
+  name: Path-3-hoptimus-base
+  version: v1
+
+report_alphas: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]

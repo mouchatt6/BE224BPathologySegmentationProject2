@@ -42,7 +42,7 @@ from tqdm import tqdm
 from src.data.dataset import PatchDataset
 from src.data.features import features_cache_dir
 from src.data.stain import MacenkoNormalizer
-from src.data.transforms import build_eval_transform
+from src.data.transforms import IMAGENET_MEAN, IMAGENET_STD, build_eval_transform
 from src.inference.tta import flip_variants, rot_variants
 from src.models.extractors import build_extractors
 from src.utils.config import load_config, resolve_path
@@ -145,7 +145,11 @@ def main() -> None:
         ex.to(device).eval()
         logger.info(f"Loaded frozen backbone: {name} (feat_dim={ex.feature_dim})")
 
-    transform = build_eval_transform()
+    # Normalization stats are config-driven: ImageNet by default (CNNs, Phikon), but a
+    # backbone can specify its own (e.g. H-optimus-0 uses non-ImageNet mean/std).
+    mean = tuple(cfg["features"].get("norm_mean", IMAGENET_MEAN))
+    std = tuple(cfg["features"].get("norm_std", IMAGENET_STD))
+    transform = build_eval_transform(mean, std)
     cache_dir = features_cache_dir(cfg["features"]["cache_dir"])
     bs = cfg["features"]["batch_size"]
     nw = cfg["features"]["num_workers"]
