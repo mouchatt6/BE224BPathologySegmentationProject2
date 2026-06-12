@@ -15,7 +15,7 @@ are in the gitignored `submissions/submission_logs/`.
 | Version | Summary | OOF AUROC | OOF composite (α=0.5) | Public LB |
 |---|---|---|---|---|
 | [v1-base](v1-base/) | Frozen Phikon CLS features (768-d) + MLP, 4-way flip TTA | **0.9929** | **0.9787** | **0.882** |
-| [v2-stainnorm](v2-stainnorm/) | + Macenko stain norm, rot6 TTA, label smoothing 0.05 | 0.9890 | ~0.974 | _pending upload_ |
+| [v2-stainnorm](v2-stainnorm/) | + Macenko stain norm, rot6 TTA, label smoothing 0.05 | 0.9890 | ~0.974 | **0.890** |
 
 ## Path A vs Path B (out-of-fold)
 
@@ -24,7 +24,7 @@ are in the gitignored `submissions/submission_logs/`.
 | Path-1 v1 (CNN trio) | 0.9393 | 0.9055 | 0.811 |
 | Path-1 v2 (stain + late fusion) | 0.9470 | 0.9143 | 0.827 |
 | **Path-2 v1 (frozen Phikon)** | **0.9929** | **0.9787** | **0.882** |
-| Path-2 v2 (Phikon + stain norm) | 0.9890 | ~0.974 | _pending_ |
+| Path-2 v2 (Phikon + stain norm) | 0.9890 | ~0.974 | **0.890** |
 
 **Phikon's ~10-pt OOF→LB gap (0.979 → 0.882) confirms the test set is genuinely shifted.**
 The improvement layer matters: for Phikon, Macenko stain norm slightly lowers clean OOF
