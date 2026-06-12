@@ -29,8 +29,11 @@ def _summary_lines(cfg: dict[str, Any], fusion_weights: dict | None = None) -> l
     """
     feat, head, train, post = cfg["features"], cfg["head"], cfg["train"], cfg["postprocess"]
     stain = "on (Macenko)" if feat.get("stain_norm", False) else "off"
-    # Pretraining source depends on the backbone family (Phikon is TCGA-pathology, not ImageNet).
-    pretrain = "TCGA-pathology" if feat.get("backend") == "phikon" else "ImageNet"
+    # Pretraining source depends on the backbone family (the pathology FMs are not ImageNet).
+    pretrain = {
+        "phikon": "TCGA-pathology",
+        "h_optimus": "histology SSL (>500k WSIs)",
+    }.get(feat.get("backend"), "ImageNet")
     if fusion_weights:
         fusion = ", ".join(f"{k} {v:.2f}" for k, v in fusion_weights.items())
         backbone_line = (f"- **Backbones:** {' + '.join(feat['backbones'])} (frozen, {pretrain}) "
