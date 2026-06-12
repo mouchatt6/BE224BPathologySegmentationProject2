@@ -44,7 +44,7 @@ from src.data.features import features_cache_dir
 from src.data.stain import MacenkoNormalizer
 from src.data.transforms import build_eval_transform
 from src.inference.tta import flip_variants, rot_variants
-from src.models.backbones import build_path_a_extractors
+from src.models.extractors import build_extractors
 from src.utils.config import load_config, resolve_path
 from src.utils.device import device_name, get_device
 from src.utils.logging_utils import get_logger
@@ -140,12 +140,7 @@ def main() -> None:
     # Build the frozen extractor(s) for the configured backend and move onto the device.
     #   timm_cnn (default, Path A): ResNet-18 + ResNet-34 + EfficientNet-B0
     #   phikon   (Path B):          frozen Phikon ViT-Base (CLS token, 768-dim)
-    backend = cfg["features"].get("backend", "timm_cnn")
-    if backend == "phikon":
-        from src.models.phikon import build_phikon_extractors  # lazy: avoids transformers for Path A
-        extractors = build_phikon_extractors(pretrained=True)
-    else:
-        extractors = build_path_a_extractors(pretrained=True)
+    extractors = build_extractors(cfg["features"].get("backend", "timm_cnn"), pretrained=True)
     for name, ex in extractors.items():
         ex.to(device).eval()
         logger.info(f"Loaded frozen backbone: {name} (feat_dim={ex.feature_dim})")

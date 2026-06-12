@@ -34,7 +34,7 @@ from sklearn.metrics import roc_auc_score
 from src.data.splits import load_folds
 from src.data.stain import MacenkoNormalizer, _HEREF
 from src.data.transforms import build_eval_transform
-from src.models.backbones import build_path_a_extractors
+from src.models.extractors import build_extractors
 from src.models.heads import MLPHead
 from src.utils.config import REPO_ROOT, load_config, resolve_path
 from src.utils.device import get_device
@@ -136,7 +136,7 @@ def main() -> None:
     shifted = [stain_shift(im) for im in imgs]
     print(f"Subsample: {len(imgs)} patches | stain shift H×{SHIFT_H} E×{SHIFT_E}")
 
-    extractors = build_path_a_extractors(pretrained=True)
+    extractors = build_extractors(cfg1["features"].get("backend", "timm_cnn"), pretrained=True)
     for ex in extractors.values():
         ex.to(device).eval()
     transform = build_eval_transform()
