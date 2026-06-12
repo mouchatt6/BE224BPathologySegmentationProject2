@@ -15,6 +15,7 @@ min; its non-ImageNet normalization is config-driven (`features.norm_mean/std`).
 | Version | Summary | OOF AUROC | OOF F1 |
 |---|---|---|---|
 | [v1-base](v1-base/) | Frozen H-optimus CLS features (1536-d) + MLP, single-view | 0.9897 | 0.9541 |
+| [v2-stainnorm](v2-stainnorm/) | + Macenko stain norm + label smoothing 0.05 (single-view) | 0.9894 | 0.9535 |
 
 ## Foundation-model comparison (out-of-fold)
 
